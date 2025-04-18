@@ -1,5 +1,7 @@
 FaceMatch - A card matching game where players flip over cards to find pairs of identical faces.	Similar to Memory (Concentration), Pelmanism, Emoji Match
+
 5oggle - A word-finding game where players identify words in a grid of lettered tiles within a time limit.	Similar to Boggle, Words With Friends, Scramble
+
 Spelling Beetle - A spelling game where players choose the correct spelling of words from a set of options.	Similar to Spelling Bee, Scrabble, Alphabear
 4foursy - A two-player game where players drop discs into a grid to align four in a row.	Similar to Connect4, Four in a Row
 5fivesy - A dice game where players roll dice to score points in various categories.	Similar to Yahtzee, Kismet
