@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Matching Game From Hell</title>
+    <style>
+        :root {
+            --card-size: min(50px, calc((100vw - 40px) / 6)); /* Ensure cards fit horizontally on mobile */
+            --card-gap: 5px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #bbb;
+            min-height: 100vh;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(6, var(--card-size)); /* Set 6 columns on mobile */
+            gap: var(--card-gap);
+            padding: 0px 0px 10px 0px;
+            background: #bbb;
+
+        }
+
+        @media (min-width: 600px) {
+            :root {
+                --card-size: min(50px, calc((90vw - 40px) / 12)); /* Ensure cards fit horizontally on tablets */
+            }
+            .game-container {
+                grid-template-columns: repeat(12, var(--card-size)); /* Set 12 columns on tablets */
+            }
+        }
+
+        @media (min-width: 900px) {
+            :root {
+                --card-size: calc((90vw - 40px) / 20); /* Ensure cards fit horizontally on desktop */
+            }
+            .game-container {
+                grid-template-columns: repeat(20, var(--card-size)); /* Set 20 columns on desktop */
+            }
+        }
+
+        .card {
+            width: var(--card-size);
+            height: var(--card-size);
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(var(--card-size) * 0.6);
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .card-front {
+            background-color: #87CEEB;
+            transform: rotateY(180deg);
+        }
+
+        .card-back {
+            color: white;
+            font-size: calc(var(--card-size) * 0.3); /* Smaller font for the number */
+        }
+
+        h1 {
+            font-size: 1.3em;
+            margin: 5px 10px 0px 10px;
+            text-align: center;
+        }
+
+        .stats {
+            margin: 0px 10px 0px 10px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1em;
+            background-color: darkred;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 5px 0;
+        }
+
+        button:hover {
+            background-color: darkgreen;
+        }
+
+        .winner {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Emoji Matching Game From Hell</h1>
+    <div class="stats">
+        <div>Moves: <span id="moves">0</span></div>
+        <div>Matches: <span id="matches">0</span> / 450</div>
+    </div>
+    <div class="game-container" id="gameContainer"></div>
+    <div>
+        <button onclick="resetGame()">New Game</button>
+    </div>
+    <div id="winMessage" class="winner"></div>
+
+    <script>
+        // Generate an array of 450 unique emojis
+        const emojiSet = [...Array(450)].map((_, i) => String.fromCodePoint(0x1F300 + i));
+        let cards = [];
+        let flippedCards = [];
+        let moves = 0;
+        let matches = 0;
+        let canFlip = true;
+
+        // Array of HTML arrow symbols
+        const arrowSymbols = ['↑', '↓', '←', '→', '↖', '↗', '↘', '↙', '↕', '↔', '↫', '↬', '↭', '↮', '↯', '↰', '↱', '↲', '↳', '↺', '↻', '↼', '↽', '↾', '↿', '⇀', '⇁', '⇂', '⇃', '⇄', '⇅', '⇆', '⇇', '⇈', '⇉', '⇊', '⇋', '⇌', '⇍', '⇎', '⇏', '⇐', '⇑', '⇒', '⇓', '⇔', '⇕', '⇖', '⇗', '⇘', '⇙', '⇚', '⇛', '⇜', '⇝', '⇞', '⇟', '⇠', '⇡', '⇢', '⇣', '⇤', '⇥', '⇦', '⇧', '⇨', '⇩', '⇪', '⇫', '⇬', '⇭', '⇮', '⇯', '⇰', '⇱', '⇲', '⇳', '⇴', '⇵', '⇶', '⇷', '⇸', '⇹', '⇺', '⇻', '⇼', '⇽', '⇾', '⇿'];
+
+        function getRandomArrowSymbol() {
+            return arrowSymbols[Math.floor(Math.random() * arrowSymbols.length)];
+        }
+
+        function getRandomDarkColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 8)]; // Ensure the color is darkish
+            }
+            return color;
+        }
+
+        function createCard(emoji, index) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const randomColor = getRandomDarkColor();
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">${emoji}</div>
+                    <div class="card-back" style="background-color: ${randomColor};">${getRandomArrowSymbol()}</div> <!-- Display a random arrow symbol on the back -->
+                </div>
+            `;
+            card.dataset.index = index;
+            card.addEventListener('click', () => flipCard(card));
+            return card;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initializeGame() {
+            const gameContainer = document.getElementById('gameContainer');
+            const cardEmojis = shuffleArray([...emojiSet, ...emojiSet]); // Create pairs of emojis
+            cards = cardEmojis;
+            
+            gameContainer.innerHTML = '';
+            cards.forEach((emoji, index) => {
+                gameContainer.appendChild(createCard(emoji, index)); // Create cards and assign random arrow symbols
+            });
+        }
+
+        function flipCard(card) {
+            if (!canFlip || card.classList.contains('flipped') || flippedCards.includes(card)) {
+                return;
+            }
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                canFlip = false;
+
+                const [card1, card2] = flippedCards;
+                const match = cards[card1.dataset.index] === cards[card2.dataset.index];
+
+                if (match) {
+                    matches++;
+                    document.getElementById('matches').textContent = matches;
+                    flippedCards = [];
+                    canFlip = true;
+
+                    if (matches === 450) {
+                        document.getElementById('winMessage').textContent = 
+                            `Congratulations! You won in ${moves} moves!`;
+                    }
+                } else {
+                    setTimeout(() => {
+                        card1.classList.remove('flipped');
+                        card2.classList.remove('flipped');
+                        flippedCards = [];
+                        canFlip = true;
+                    }, 1500); // Increased delay to 1.5 seconds
+                }
+            }
+        }
+
+        function resetGame() {
+            moves = 0;
+            matches = 0;
+            flippedCards = [];
+            canFlip = true;
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('matches').textContent = '0';
+            document.getElementById('winMessage').textContent = '';
+            initializeGame();
+        }
+
+        // Initialize the game when the page loads
+        initializeGame();
+    </script>
+</body>
+</html>

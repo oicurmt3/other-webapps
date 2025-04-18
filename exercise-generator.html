@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercises Generator</title>
+  <style>
+    /* General reset and box-sizing fix */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body styles */
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Title */
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #fff;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Form container */
+    form {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Input field */
+    input[type="text"] {
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      width: 100%;
+      color: #333;
+      background: #fff;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border: 2px solid #4caf50;
+    }
+
+    /* Checkboxes container */
+    .checkbox-group {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 5px;
+    }
+
+    .checkbox-group h3 {
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    /* Styling for inline checkboxes */
+    .checkbox-group .checkbox-wrapper {
+      display: flex;
+      flex-wrap: wrap; /* Allows wrapping to the next line */
+      gap: 15px; /* Adds spacing between checkboxes */
+    }
+
+    .checkbox-group label {
+      font-size: 1.1rem; /* Makes labels bigger */
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px; /* Bigger checkbox */
+      height: 20px; /* Bigger checkbox */
+      margin-right: 10px;
+    }
+
+    /* Button */
+    button {
+      padding: 12px;
+      font-size: 1rem;
+      background-color: #4caf50;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+
+    /* Results container */
+    .results-container {
+      background: #ffffff;
+      color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
+      overflow: auto;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .result-item {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .result-item h3 {
+      margin: 0;
+      color: #4caf50;
+    }
+
+    /* Error messages */
+    .error {
+      color: #ff4d4f;
+      font-size: 1rem;
+      margin-top: 20px;
+      display: none;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      form {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Exercises Generator</h1>
+
+  <!-- Search Form -->
+  <form id="search-form">
+    <input type="text" id="exercise-name" placeholder="Enter exercise name (e.g., press)">
+
+    <!-- Exercise Type Checkboxes -->
+    <div class="checkbox-group">
+      <h3>Select Exercise Types</h3>
+      <div class="checkbox-wrapper">
+        <label><input type="checkbox" value="cardio" class="exercise-type"> Cardio</label>
+        <label><input type="checkbox" value="olympic_weightlifting" class="exercise-type"> Olympic Weightlifting</label>
+        <label><input type="checkbox" value="plyometrics" class="exercise-type"> Plyometrics</label>
+        <label><input type="checkbox" value="powerlifting" class="exercise-type"> Powerlifting</label>
+        <label><input type="checkbox" value="strength" class="exercise-type"> Strength</label>
+        <label><input type="checkbox" value="stretching" class="exercise-type"> Stretching</label>
+        <label><input type="checkbox" value="strongman" class="exercise-type"> Strongman</label>
+      </div>
+    </div>
+
+    <!-- Muscle Group Checkboxes -->
+    <div class="checkbox-group">
+      <h3>Select Muscle Groups</h3>
+      <div class="checkbox-wrapper">
+        <label><input type="checkbox" value="abdominals" class="muscle-group"> Abdominals</label>
+        <label><input type="checkbox" value="abductors" class="muscle-group"> Abductors</label>
+        <label><input type="checkbox" value="adductors" class="muscle-group"> Adductors</label>
+        <label><input type="checkbox" value="biceps" class="muscle-group"> Biceps</label>
+        <label><input type="checkbox" value="calves" class="muscle-group"> Calves</label>
+        <label><input type="checkbox" value="chest" class="muscle-group"> Chest</label>
+        <label><input type="checkbox" value="forearms" class="muscle-group"> Forearms</label>
+        <label><input type="checkbox" value="glutes" class="muscle-group"> Glutes</label>
+        <label><input type="checkbox" value="hamstrings" class="muscle-group"> Hamstrings</label>
+        <label><input type="checkbox" value="lats" class="muscle-group"> Lats</label>
+        <label><input type="checkbox" value="lower_back" class="muscle-group"> Lower Back</label>
+        <label><input type="checkbox" value="middle_back" class="muscle-group"> Middle Back</label>
+        <label><input type="checkbox" value="neck" class="muscle-group"> Neck</label>
+        <label><input type="checkbox" value="quadriceps" class="muscle-group"> Quadriceps</label>
+        <label><input type="checkbox" value="traps" class="muscle-group"> Traps</label>
+        <label><input type="checkbox" value="triceps" class="muscle-group"> Triceps</label>
+      </div>
+    </div>
+
+    <!-- Difficulty Level Checkboxes -->
+    <div class="checkbox-group">
+      <h3>Select Difficulty Levels</h3>
+      <div class="checkbox-wrapper">
+        <label><input type="checkbox" value="beginner" class="difficulty"> Beginner</label>
+        <label><input type="checkbox" value="intermediate" class="difficulty"> Intermediate</label>
+        <label><input type="checkbox" value="expert" class="difficulty"> Expert</label>
+      </div>
+    </div>
+
+    <button type="submit">Search Exercises</button>
+  </form>
+
+  <!-- Results Container -->
+  <div id="results-container" class="results-container" style="display: none;">
+    <h2>Results</h2>
+    <div id="results"></div>
+  </div>
+
+  <!-- Error Message -->
+  <div id="error" class="error"></div>
+
+  <script>
+    const apiKey = "fH03QYAqm7Kfoare3jG2Ug==8P34HsmtISDn6IE3"; // Your API Key
+
+    document.getElementById("search-form").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const name = document.getElementById("exercise-name").value.trim();
+
+      // Get selected checkboxes for exercise types, muscle groups, and difficulty
+      const types = Array.from(document.querySelectorAll(".exercise-type:checked")).map(cb => cb.value);
+      const muscles = Array.from(document.querySelectorAll(".muscle-group:checked")).map(cb => cb.value);
+      const difficulties = Array.from(document.querySelectorAll(".difficulty:checked")).map(cb => cb.value);
+
+      const resultsContainer = document.getElementById("results-container");
+      const results = document.getElementById("results");
+      const errorElement = document.getElementById("error");
+
+      resultsContainer.style.display = "none";
+      results.innerHTML = "";
+      errorElement.style.display = "none";
+
+      if (!name && types.length === 0 && muscles.length === 0 && difficulties.length === 0) {
+        errorElement.textContent = "Please provide at least one search parameter.";
+        errorElement.style.display = "block";
+        return;
+      }
+
+      let apiUrl = `https://api.api-ninjas.com/v1/exercises?`;
+      if (name) apiUrl += `name=${encodeURIComponent(name)}&`;
+      if (types.length > 0) apiUrl += `type=${types.join(",")}&`;
+      if (muscles.length > 0) apiUrl += `muscle=${muscles.join(",")}&`;
+      if (difficulties.length > 0) apiUrl += `difficulty=${difficulties.join(",")}`;
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "X-Api-Key": apiKey,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.length === 0) {
+          throw new Error("No exercises found.");
+        }
+
+        resultsContainer.style.display = "block";
+        data.forEach((exercise) => {
+          const exerciseDiv = document.createElement("div");
+          exerciseDiv.classList.add("result-item");
+
+          exerciseDiv.innerHTML = `
+            <h3>${exercise.name}</h3>
+            <p><strong>Type:</strong> ${exercise.type}</p>
+            <p><strong>Muscle:</strong> ${exercise.muscle}</p>
+            <p><strong>Equipment:</strong> ${exercise.equipment || "N/A"}</p>
+            <p><strong>Difficulty:</strong> ${exercise.difficulty}</p>
+            <p><strong>Instructions:</strong> ${exercise.instructions}</p>
+          `;
+
+          results.appendChild(exerciseDiv);
+        });
+      } catch (error) {
+        errorElement.textContent = error.message;
+        errorElement.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>

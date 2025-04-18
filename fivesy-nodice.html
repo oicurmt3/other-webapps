@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FivesyDicey - A strategic dice game</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #333;
+            --secondary-color: #CD5C5C;
+            --background-color: #555;
+            --text-color: #2F0000;
+        }
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.1);
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .dice-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .die {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: white;
+            color: var(--primary-color);
+        }
+        .die.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .score-sheet {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .upper-section, .lower-section {
+            border: 1px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: 10px;
+            background-color: var(--background-color);
+        }
+        .upper-section h3, .lower-section h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        .score-option {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: 1px solid var(--secondary-color);
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .score-option:hover {
+            background-color: rgba(139, 0, 0, 0.1);
+        }
+        .score-option.scored {
+            background-color: var(--secondary-color);
+            color: white;
+            cursor: not-allowed;
+        }
+        .rolls-left {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        #upper-bonus, #yahtzee-bonus {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 10px;
+        }
+        #total-score, #upper-total, #lower-total {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: var(--primary-color);
+        }
+        @media (min-width: 768px) {
+            .game-container {
+                max-width: 600px;
+            }
+            .score-sheet {
+                grid-template-columns: 1fr 1fr;
+            }
+            .die {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .button-container button {
+            width: auto;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>FivesyDicey</h1>
+        <div class="dice-container">
+            <div class="die" data-index="0">?</div>
+            <div class="die" data-index="1">?</div>
+            <div class="die" data-index="2">?</div>
+            <div class="die" data-index="3">?</div>
+            <div class="die" data-index="4">?</div>
+        </div>
+        <div class="rolls-left">Rolls left: <span id="rolls-left">3</span></div>
+        <button id="roll-btn">Roll Dice</button>
+        <div class="score-sheet">
+            <div class="upper-section">
+                <h3>Upper Section</h3>
+                <div class="score-option" data-category="ones">Ones: <span>0</span></div>
+                <div class="score-option" data-category="twos">Twos: <span>0</span></div>
+                <div class="score-option" data-category="threes">Threes: <span>0</span></div>
+                <div class="score-option" data-category="fours">Fours: <span>0</span></div>
+                <div class="score-option" data-category="fives">Fives: <span>0</span></div>
+                <div class="score-option" data-category="sixes">Sixes: <span>0</span></div>
+                <div id="upper-bonus">Upper Bonus: <span>0</span></div>
+                <div id="upper-total">Upper Total: <span>0</span></div>
+            </div>
+            <div class="lower-section">
+                <h3>Lower Section</h3>
+                <div class="score-option" data-category="threeOfAKind">Three of a Kind: <span>0</span></div>
+                <div class="score-option" data-category="fourOfAKind">Four of a Kind: <span>0</span></div>
+                <div class="score-option" data-category="fullHouse">Full House: <span>0</span></div>
+                <div class="score-option" data-category="smallStraight">Small Straight: <span>0</span></div>
+                <div class="score-option" data-category="largeStraight">Large Straight: <span>0</span></div>
+                <div class="score-option" data-category="yahtzee">Yahtzee: <span>0</span></div>
+                <div class="score-option" data-category="chance">Chance: <span>0</span></div>
+                <div id="yahtzee-bonus">Yahtzee Bonus: <span>0</span></div>
+                <div id="lower-total">Lower Total: <span>0</span></div>
+            </div>
+        </div>
+        <div id="total-score">Grand Total: <span>0</span></div>
+        <audio id="diceSound" src="path/to/dice-sound.mp3" preload="auto"></audio>
+        <audio id="scoreSound" src="path/to/score-sound.mp3" preload="auto"></audio>
+        <div class="button-container">
+            <button id="soundToggle" aria-label="Toggle sound">
+                <span class="material-icons" id="soundIcon">volume_up</span>
+            </button>
+            <button id="newGameBtn">
+                <span class="material-icons">refresh</span>
+            </button>
+        </div>
+        <button id="share-btn" style="margin-top: 20px;">Share this game</button>
+		<!-- Add this after the Share button -->
+<!-- Add this after the Share button -->
+<div class="instructions">
+    <h2>How to Play</h2>
+    <ol>
+        <li>Click "Roll Dice" to start your turn.</li>
+        <li>You can roll up to 3 times per turn.</li>
+        <li>Click on dice to hold them between rolls.</li>
+        <li>After rolling, you must choose a category to score.</li>
+        <li>After 13 turns the game ends.</li>
+    </ol>
+
+    <h2>Scoring Categories</h2>
+    <h3>Upper Section</h3>
+    <ul>
+        <li><strong>Ones to Sixes:</strong> Sum of the respective dice (e.g., for Fours, count only the 4s)</li>
+        <li><strong>Bonus:</strong> 35 points if upper section totals 63 or more</li>
+    </ul>
+
+    <h3>Lower Section</h3>
+    <ul>
+        <li><strong>Three of a Kind:</strong> At least three dice showing the same number. Score is sum of all dice.</li>
+        <li><strong>Four of a Kind:</strong> At least four dice showing the same number. Score is sum of all dice.</li>
+        <li><strong>Full House:</strong> Three of one number and two of another. Scores 25 points.</li>
+        <li><strong>Small Straight:</strong> Four sequential dice (e.g., 1-2-3-4, 2-3-4-5, or 3-4-5-6). Scores 30 points.</li>
+        <li><strong>Large Straight:</strong> Five sequential dice (1-2-3-4-5 or 2-3-4-5-6). Scores 40 points.</li>
+        <li><strong>Yahtzee:</strong> All five dice showing the same number. Scores 50 points.</li>
+        <li><strong>Chance:</strong> Can be used for any combination. Score is sum of all dice.</li>
+        <li><strong>Yahtzee Bonus:</strong> If you've already scored a Yahtzee and roll another, score 100 points in addition to using another category.</li>
+    </ul>
+
+    <h3>Strategy Tips</h3>
+    <ul>
+        <li>Aim for the upper section bonus by prioritizing higher numbers when possible.</li>
+        <li>Save your Chance for a high roll if other categories are filled.</li>
+        <li>Consider probability when deciding whether to go for difficult combinations like Yahtzee.</li>
+    </ul>
+</div>
+    </div>
+
+<script>
+    const dice = Array.from(document.querySelectorAll('.die'));
+    const rollBtn = document.getElementById('roll-btn');
+    const scoreOptions = Array.from(document.querySelectorAll('.score-option'));
+    const totalScoreDisplay = document.getElementById('total-score').querySelector('span');
+    const upperTotalDisplay = document.getElementById('upper-total').querySelector('span');
+    const lowerTotalDisplay = document.getElementById('lower-total').querySelector('span');
+    const rollsLeftDisplay = document.getElementById('rolls-left');
+
+    let rollsLeft = 3;
+    let diceValues = [0, 0, 0, 0, 0];
+    let totalScore = 0;
+    let upperSectionScore = 0;
+    let lowerSectionScore = 0;
+    let yahtzeeCount = 0;
+    let scoredCategories = 0;
+    let soundEnabled = true;
+    let gameStarted = false;
+    let upperBonusAwarded = false;
+
+    function rollDice() {
+        if (rollsLeft > 0) {
+            gameStarted = true;
+            dice.forEach((die, index) => {
+                if (!die.classList.contains('selected')) {
+                    const value = Math.floor(Math.random() * 6) + 1;
+                    die.textContent = value;
+                    diceValues[index] = value;
+                }
+            });
+            rollsLeft--;
+            rollsLeftDisplay.textContent = rollsLeft;
+            if (rollsLeft === 0) {
+                rollBtn.disabled = true;
+            }
+            updatePossibleScores();
+        }
+    }
+
+    function toggleDieSelection(event) {
+        if (gameStarted && rollsLeft < 3 && rollsLeft > 0) {
+            event.target.classList.toggle('selected');
+            playDiceSound();
+        }
+    }
+
+    function calculateScore(category) {
+        const counts = diceValues.reduce((acc, val) => {
+            acc[val] = (acc[val] || 0) + 1;
+            return acc;
+        }, {});
+
+        const sum = diceValues.reduce((a, b) => a + b, 0);
+
+        switch (category) {
+            case 'ones':
+            case 'twos':
+            case 'threes':
+            case 'fours':
+            case 'fives':
+            case 'sixes':
+                const number = ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes'].indexOf(category) + 1;
+                return diceValues.filter(value => value === number).length * number;
+            case 'threeOfAKind':
+                return Object.values(counts).some(count => count >= 3) ? sum : 0;
+            case 'fourOfAKind':
+                return Object.values(counts).some(count => count >= 4) ? sum : 0;
+            case 'fullHouse':
+                return Object.values(counts).includes(3) && Object.values(counts).includes(2) ? 25 : 0;
+            case 'smallStraight':
+                const sorted = [...diceValues].sort((a, b) => a - b);
+                const sequence = sorted.filter((num, index) => sorted.indexOf(num) === index).join('');
+                return (sequence.includes('1234') || sequence.includes('2345') || sequence.includes('3456')) ? 30 : 0;
+            case 'largeStraight':
+                const sortedUnique = [...new Set(diceValues)].sort((a, b) => a - b);
+                return (sortedUnique.join('') === '12345' || sortedUnique.join('') === '23456') ? 40 : 0;
+            case 'yahtzee':
+                return Object.values(counts).includes(5) ? 50 : 0;
+            case 'chance':
+                return sum;
+        }
+    }
+
+    function updatePossibleScores() {
+        scoreOptions.forEach(option => {
+            if (!option.classList.contains('scored')) {
+                const category = option.dataset.category;
+                const score = calculateScore(category);
+                option.querySelector('span').textContent = score;
+            }
+        });
+    }
+
+    function selectScore(event) {
+        if (gameStarted && !event.target.classList.contains('scored')) {
+            const category = event.target.dataset.category;
+            const score = Number(event.target.querySelector('span').textContent);
+            totalScore += score;
+            event.target.classList.add('scored');
+            scoredCategories++;
+
+            playScoreSound();
+
+            if (['ones', 'twos', 'threes', 'fours', 'fives', 'sixes'].includes(category)) {
+                upperSectionScore += score;
+                if (upperSectionScore >= 63 && !upperBonusAwarded) {
+                    totalScore += 35;
+                    upperSectionScore += 35;
+                    upperBonusAwarded = true;
+                    document.querySelector('#upper-bonus span').textContent = '35';
+                }
+            } else {
+                lowerSectionScore += score;
+            }
+
+            if (category === 'yahtzee') {
+                yahtzeeCount++;
+            } else if (yahtzeeCount > 0 && calculateScore('yahtzee') === 50) {
+                totalScore += 100;
+                lowerSectionScore += 100;
+                yahtzeeCount++;
+                document.querySelector('#yahtzee-bonus span').textContent = (yahtzeeCount - 1) * 100;
+            }
+
+            updateTotalScores();
+            endTurn();
+
+            if (scoredCategories === 13) {
+                endGame();
+            }
+        }
+    }
+
+    function updateTotalScores() {
+        totalScoreDisplay.textContent = totalScore;
+        upperTotalDisplay.textContent = upperSectionScore;
+        lowerTotalDisplay.textContent = lowerSectionScore;
+    }
+
+    function endTurn() {
+        rollsLeft = 3;
+        rollsLeftDisplay.textContent = rollsLeft;
+        rollBtn.disabled = false;
+        dice.forEach(die => {
+            die.classList.remove('selected');
+            die.textContent = '?';
+        });
+        diceValues = [0, 0, 0, 0, 0];
+        gameStarted = false;
+        resetPossibleScores();
+    }
+
+    function resetPossibleScores() {
+        scoreOptions.forEach(option => {
+            if (!option.classList.contains('scored')) {
+                option.querySelector('span').textContent = '0';
+            }
+        });
+    }
+
+    function endGame() {
+        rollBtn.disabled = true;
+        alert(`Game Over! Your final score is ${totalScore}`);
+        // Remove the automatic share prompt
+        // shareGame();
+    }
+
+    function playDiceSound() {
+        if (soundEnabled) {
+            document.getElementById('diceSound').play();
+        }
+    }
+
+    function playScoreSound() {
+        if (soundEnabled) {
+            document.getElementById('scoreSound').play();
+        }
+    }
+
+    document.getElementById('soundToggle').addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        const icon = document.getElementById('soundIcon');
+        icon.textContent = soundEnabled ? 'volume_up' : 'volume_off';
+    });
+
+    document.getElementById('share-btn').addEventListener('click', shareGame);
+
+    function shareGame() {
+        const shareData = {
+            title: 'Yahtzee Game',
+            text: `I scored ${totalScore} points in Yahtzee! Can you beat my score?`,
+            url: window.location.href
+        };
+        if (navigator.share) {
+            navigator.share(shareData)
+                .then(() => console.log('Game shared successfully!'))
+                .catch((error) => console.error('Error sharing game:', error));
+        } else {
+            alert('Sharing is not supported on this device.');
+        }
+    }
+
+    document.getElementById('newGameBtn').addEventListener('click', () => {
+        rollsLeft = 3;
+        rollsLeftDisplay.textContent = rollsLeft;
+        rollBtn.disabled = false;
+        diceValues = [0, 0, 0, 0, 0];
+        totalScore = 0;
+        upperSectionScore = 0;
+        lowerSectionScore = 0;
+        yahtzeeCount = 0;
+        scoredCategories = 0;
+        gameStarted = false;
+        upperBonusAwarded = false;
+        updateTotalScores();
+        dice.forEach(die => {
+            die.textContent = '?';
+            die.classList.remove('selected');
+        });
+        scoreOptions.forEach(option => {
+            option.classList.remove('scored');
+            option.querySelector('span').textContent = '0';
+        });
+        document.querySelector('#upper-bonus span').textContent = '0';
+        document.querySelector('#yahtzee-bonus span').textContent = '0';
+    });
+
+    rollBtn.addEventListener('click', rollDice);
+    dice.forEach(die => die.addEventListener('click', toggleDieSelection));
+    scoreOptions.forEach(option => option.addEventListener('click', selectScore));
+
+    // Initialize game state
+    resetPossibleScores();
+</script>
+</body>
+</html>

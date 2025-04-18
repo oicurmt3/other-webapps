@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medication Tracker</title>
+    <!-- Meta tags for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- CSS Styles -->
+    <style>
+        /* Base styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Dark mode toggle */
+        .dark-mode-toggle {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 24px;
+        }
+
+        /* Form styles */
+        form {
+            background-color: #fff;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        /* Dark mode form */
+        body.dark-mode form {
+            background-color: #1e1e1e;
+        }
+
+        /* Form elements */
+        form label {
+            display: block;
+            margin-bottom: 5px;
+            margin-top: 15px;
+        }
+
+        form input, form select, form button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 3px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* Dark mode input */
+        body.dark-mode form input,
+        body.dark-mode form select {
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+        }
+
+        table th, table td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        /* Center table headers */
+        table th {
+            text-align: center;
+        }
+
+        /* Dark mode table */
+        body.dark-mode table th,
+        body.dark-mode table td {
+            border-bottom: 1px solid #444;
+        }
+
+        /* Highlighted rows */
+        .low-supply {
+            background-color: #fff3cd;
+        }
+
+        .limit-reached {
+            background-color: #f8d7da;
+        }
+
+        /* Dark mode highlights */
+        body.dark-mode .low-supply {
+            background-color: #665c02;
+        }
+
+        body.dark-mode .limit-reached {
+            background-color: #842029;
+        }
+
+        /* Button styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .btn span.material-icons {
+            margin-right: 4px;
+            font-size: 18px;
+        }
+
+        .btn.add {
+            background-color: #28a745; /* Green */
+        }
+
+        .btn.add:hover {
+            background-color: #218838;
+        }
+
+        .btn.edit {
+            background-color: #17a2b8; /* Teal */
+        }
+
+        .btn.edit:hover {
+            background-color: #138496;
+        }
+
+        .btn.delete {
+            background-color: #dc3545; /* Red */
+        }
+
+        .btn.delete:hover {
+            background-color: #c82333;
+        }
+
+        .btn.info {
+            background-color: #007bff; /* Blue */
+        }
+
+        .btn.info:hover {
+            background-color: #0069d9;
+        }
+
+        .btn.dose {
+            background-color: #ffc107; /* Yellow */
+            color: #212529;
+        }
+
+        .btn.dose:hover {
+            background-color: #e0a800;
+        }
+
+        .btn.undo {
+            background-color: #6c757d; /* Gray */
+        }
+
+        .btn.undo:hover {
+            background-color: #5a6268;
+        }
+
+        /* Full-width buttons on mobile */
+        @media screen and (max-width: 768px) {
+            .btn {
+                width: 31%;
+                justify-content: center;
+                margin-bottom: 5px;
+            }
+        }
+        
+        /* Full-width buttons on mobile */
+        @media screen and (max-width: 768px) {
+            .add.btn {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 5px;
+            }
+        }        
+
+        /* Share button */
+        .share-btn {
+            padding: 10px;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            margin-top: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .share-btn:hover {
+            background-color: #1e7e34;
+        }
+
+        /* Center backup and restore buttons */
+        .center-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Position form below table */
+        .med-form {
+            margin-top: 40px;
+        }
+
+        /* Add space between last input and button */
+        .med-form .form-bottom-space {
+            margin-bottom: 20px;
+        }
+
+        /* Responsive table */
+        @media screen and (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead tr {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 15px;
+                border-bottom: 2px solid #ddd;
+            }
+
+            td {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            .btn {
+                font-size: 14px;
+            }
+
+            .btn span.material-icons {
+                font-size: 20px;
+            }
+
+            /* Center the Actions heading */
+            .actions-header {
+                text-align: center;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+        }
+        
+        
+        
+/* Styles for medication tables */
+.med-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.med-table th, .med-table td {
+    text-align: left;
+    padding: 8px;
+    border: 1px solid #ccc;
+    word-wrap: break-word;
+    vertical-align: top;
+}
+
+.med-table th {
+    background-color: #f2f2f2;
+    /* Dark mode */
+    transition: background-color 0.3s;
+}
+
+body.dark-mode .med-table th {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+.med-table td {
+    background-color: #fff;
+    /* Dark mode */
+    transition: background-color 0.3s;
+}
+
+body.dark-mode .med-table td {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+    .med-table, .med-table thead, .med-table tbody, .med-table th, .med-table td, .med-table tr {
+        display: block;
+    }
+
+    .med-table thead tr {
+        display: none;
+    }
+
+    .med-table tr {
+        margin-bottom: 15px;
+    }
+
+    .med-table td {
+        display: block;
+        padding: 10px;
+        border: none;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .med-table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .med-table td:last-child {
+        border-bottom: 2px solid #ccc;
+    }
+}        
+        
+        
+        
+        
+
+    </style>
+</head>
+<body>
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Medication Tracker</h1>
+            <!-- Dark mode toggle -->
+            <button class="dark-mode-toggle" title="Toggle Dark Mode">
+                <span class="material-icons">
+                    brightness_6
+                </span>
+            </button>
+        </header>
+
+<!-- Medication table -->
+<table id="med-table">
+    <thead>
+        <tr>
+            <th id="medication-header">Medication Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Medication entries will be added here dynamically -->
+    </tbody>
+</table>
+
+
+<!-- Medication tables will be inserted here dynamically -->
+<div id="med-tables-container">
+    <!-- Medication tables will be added here dynamically -->
+</div>
+
+
+        <!-- Backup and Restore Buttons -->
+        <div class="center-buttons">
+            <button id="backup-btn" class="share-btn" title="Backup Data">
+                <span class="material-icons">backup</span> Backup Data
+            </button>
+            <button id="restore-btn" class="share-btn" title="Restore Data">
+                <span class="material-icons">restore</span> Restore Data
+            </button>
+        </div>
+
+        <!-- Medication form -->
+        <form id="med-form" class="med-form">
+            <h2>Add / Edit Medication</h2>
+            <!-- Medication Name -->
+            <label for="med-name">Medication Name</label>
+            <input type="text" id="med-name" required>
+
+            <!-- Medication Type -->
+            <label for="med-type">Appearance</label>
+            <select id="med-type" required>
+                <!-- Common medication types; customize as needed -->
+                <option value="Pill">Pill</option>
+                <option value="Tablet">Tablet</option>
+                <option value="Capsule">Capsule</option>
+                <option value="Liquid">Liquid</option>
+                <option value="Spray">Spray</option>
+                <option value="Injection">Injection</option>
+                <option value="Inhaler">Inhaler</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <!-- Dosage Amount and Unit -->
+            <label for="dosage-amount">Dose</label>
+            <div style="display:flex;">
+                <input type="number" id="dosage-amount" min="0" required style="flex:1; margin-right:5px;">
+                <select id="dosage-unit" required style="flex:1;">
+                    <!-- Dosage Units -->
+                    <option value="mg">mg</option>
+                    <option value="ml">ml</option>
+                    <option value="pills">Pills</option>
+                    <option value="tablets">Tablets</option>
+                    <option value="drops">Drops</option>
+                    <option value="inhalations">Inhalations</option>
+                    <option value="units">Units</option>
+                    <option value="sprays">Sprays</option>
+                    <option value="patches">Patches</option>
+                    <option value="suppositories">Suppositories</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- Frequency Type -->
+            <label for="frequency-type">Frequency</label>
+            <select id="frequency-type" required>
+                <option value="interval">Timed</option>
+                <option value="prn">PRN (As Needed)</option>
+            </select>
+
+            <!-- Frequency Interval -->
+            <div id="frequency-interval">
+                <label for="frequency-amount">Every</label>
+                <div style="display:flex;">
+                    <select id="frequency-amount" style="flex:1; margin-right:5px;">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                    <select id="frequency-unit" style="flex:1;">
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Minimum Time Between Doses -->
+            <label for="min-time-between-doses">Minimum Time Between Doses</label>
+            <div style="display:flex;">
+                <select id="min-time-between-doses" required style="flex:1; margin-right:5px;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+                <select id="min-time-unit" required style="flex:1;">
+                    <option value="minutes">Min</option>
+                    <option value="hours">Hrs</option>
+                    <option value="days">Days</option>
+                </select>
+            </div>
+
+            <!-- Maximum Number of Doses per Administration -->
+            <label for="max-dosages-per-admin">Max Doses per intake (Rx)</label>
+            <select id="max-dosages-per-admin" required>
+                <!-- Options will be populated dynamically -->
+            </select>
+
+            <!-- Max Dosage in Defined Period and Period -->
+            <label for="max-dosage">Max Dose in Defined Period</label>
+            <div style="display:flex;">
+                <!-- Changed input to select -->
+                <div style="flex:1;">
+                <select id="max-dosage" required style="flex:1; margin-right:5px;">
+                    <!-- Options will be populated dynamically -->
+                </select>
+                
+                    <label for="period-amount">Defined Period</label>
+                    <div style="display:flex;">
+                        <select id="period-amount" required style="flex:1; margin-right:5px;">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                        <select id="period-unit" required style="flex:1;">
+                            <option value="minutes">Min</option>
+                            <option value="hours">Hrs</option>
+                            <option value="days">Days</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantity Remaining -->
+            <label for="quantity-left">Quantity Remaining</label>
+            <input type="number" id="quantity-left" min="0" required>
+
+            <!-- Low Supply Threshold -->
+            <label for="low-threshold">Low Supply Threshold</label>
+            <select id="low-threshold" required>
+                <!-- Options will be populated dynamically -->
+            </select>
+
+            <!-- Add some space -->
+            <div class="form-bottom-space"></div>
+
+            <!-- Add Medication Button -->
+            <button type="submit" class="btn add" style="font-size:18px; height:50px;">
+                <span class="material-icons">add_circle</span> Add Medication
+            </button>
+        </form>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Accessing DOM elements
+        const medForm = document.getElementById('med-form');
+        const medTableBody = document.querySelector('#med-table tbody');
+        const darkModeToggle = document.querySelector('.dark-mode-toggle');
+        const backupBtn = document.getElementById('backup-btn');
+        const restoreBtn = document.getElementById('restore-btn');
+        const frequencyType = document.getElementById('frequency-type');
+        const frequencyInterval = document.getElementById('frequency-interval');
+        const frequencyAmount = document.getElementById('frequency-amount');
+        const frequencyUnit = document.getElementById('frequency-unit');
+        const minTimeBetweenDoses = document.getElementById('min-time-between-doses');
+        const minTimeUnit = document.getElementById('min-time-unit');
+        const maxDosagesPerAdmin = document.getElementById('max-dosages-per-admin');
+        const periodAmount = document.getElementById('period-amount');
+        const periodUnit = document.getElementById('period-unit');
+        const maxDosage = document.getElementById('max-dosage'); // Added this line
+
+        // Populate dropdowns with numbers 1 to 24 where needed
+        const numberDropdowns = [
+            frequencyAmount,
+            minTimeBetweenDoses,
+            maxDosagesPerAdmin,
+            periodAmount,
+            document.getElementById('low-threshold'),
+            maxDosage // Added this line
+        ];
+
+        numberDropdowns.forEach(dropdown => {
+            for (let i = 1; i <= 24; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                dropdown.appendChild(option);
+            }
+        });
+
+        // Check for dark mode preference in localStorage
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Event listener for dark mode toggle
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            // Save preference to localStorage
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+        });
+
+        // Array to store medications
+        let medications = JSON.parse(localStorage.getItem('medications')) || [];
+
+        // Function to validate form data
+        function validateForm(data) {
+            const numberFields = ['dosageAmount', 'maxDosage', 'quantityLeft'];
+            for (let field of numberFields) {
+                if (data[field] <= 0 || isNaN(data[field])) {
+                    alert('Please enter valid positive numbers.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Function to add medication
+        function addMedication(e) {
+            e.preventDefault();
+
+            // Gather form data
+            const medData = {
+                id: Date.now(),
+                name: document.getElementById('med-name').value.trim(),
+                type: document.getElementById('med-type').value,
+                dosageAmount: parseFloat(document.getElementById('dosage-amount').value),
+                dosageUnit: document.getElementById('dosage-unit').value,
+                frequencyType: frequencyType.value,
+                frequencyAmount: frequencyType.value === 'interval' ? parseFloat(frequencyAmount.value) : null,
+                frequencyUnit: frequencyType.value === 'interval' ? frequencyUnit.value : null,
+                minTimeBetweenDoses: parseFloat(minTimeBetweenDoses.value),
+                minTimeUnit: minTimeUnit.value,
+                maxDosagesPerAdmin: parseInt(maxDosagesPerAdmin.value),
+                maxDosage: parseFloat(maxDosage.value), // Updated to retrieve value from select
+                periodAmount: parseFloat(periodAmount.value),
+                periodUnit: periodUnit.value,
+                quantityLeft: parseFloat(document.getElementById('quantity-left').value),
+                lowThreshold: parseFloat(document.getElementById('low-threshold').value),
+                dosesTaken: [],
+            };
+
+            // Validate data
+            if (!validateForm(medData)) {
+                return;
+            }
+
+            // Add medication to array
+            medications.push(medData);
+            // Save to localStorage
+            localStorage.setItem('medications', JSON.stringify(medications));
+
+            // Reset form
+            medForm.reset();
+            // Hide frequency interval inputs
+            frequencyInterval.style.display = 'none';
+
+            // Update table
+            renderTable();
+
+            // Schedule notifications if needed
+            scheduleNotifications(medData);
+        }
+
+// Function to render the medication table
+function renderTable() {
+    // Reference to the container where we'll put the tables
+    const medTablesContainer = document.getElementById('med-tables-container');
+    medTablesContainer.innerHTML = ''; // Clear any existing content
+
+    medications.forEach(med => {
+        // Create table elements
+        const table = document.createElement('table');
+        table.classList.add('med-table');
+
+        // Create thead
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+
+        // Medication name header
+        const medNameHeader = document.createElement('th');
+        medNameHeader.innerText = med.name; // Medication name
+
+        // Other headers
+        const statusHeader = document.createElement('th');
+        statusHeader.innerText = 'Status';
+
+        const actionsHeader = document.createElement('th');
+        actionsHeader.innerText = 'Action';
+
+        // Append headers to header row
+        headerRow.appendChild(medNameHeader);
+        headerRow.appendChild(statusHeader);
+        headerRow.appendChild(actionsHeader);
+
+        // Append header row to thead
+        thead.appendChild(headerRow);
+
+        // Create tbody
+        const tbody = document.createElement('tbody');
+        const dataRow = document.createElement('tr');
+
+        // Medication details cell
+        const detailsCell = document.createElement('td');
+        detailsCell.setAttribute('data-label', med.name); // Use medication name as data-label
+        const medDetails = `${med.type}, take ${med.dosageAmount}-${med.maxDosagesPerAdmin} ${med.dosageUnit} ${med.frequencyType === 'interval' ? 'every ' + med.frequencyAmount + ' ' + med.frequencyUnit : 'as needed'}, max ${med.maxDosagesPerAdmin} per administration. Max dosage is ${med.maxDosage} ${med.dosageUnit} over ${med.periodAmount} ${med.periodUnit}.`;
+        detailsCell.innerText = medDetails;
+
+        // Status cell
+        const statusCell = document.createElement('td');
+        statusCell.setAttribute('data-label', 'Status');
+        // Create the status message
+        const dosesTaken = getDosesInPeriod(med) / med.dosageAmount;
+        const nextDoseIn = getNextDoseTime(med);
+        const statusMessage = `You've taken ${dosesTaken} ${med.dosageUnit} in the last ${med.periodAmount} ${med.periodUnit}. Next dose in ${nextDoseIn}. Quantity left: ${med.quantityLeft} ${med.dosageUnit}.`;
+        statusCell.innerText = statusMessage;
+
+        // Actions cell
+        const actionsCell = document.createElement('td');
+        actionsCell.setAttribute('data-label', 'Action');
+        const actionsDiv = document.createElement('div');
+        actionsDiv.classList.add('actions-buttons');
+        actionsDiv.innerHTML = `
+            <button class="btn dose" onclick="takeDose(${med.id})">
+                <span class="material-icons">check_circle</span> Dose
+            </button>
+            <button class="btn undo" onclick="undoDose(${med.id})">
+                <span class="material-icons">undo</span> Undo
+            </button>
+            <button class="btn edit" onclick="editMedication(${med.id})">
+                <span class="material-icons">edit</span> Edit
+            </button>
+            <button class="btn delete" onclick="deleteMedication(${med.id})">
+                <span class="material-icons">delete</span> Delete
+            </button>
+            <button class="btn info" onclick="openGoogleSearch('${encodeURIComponent(med.name)}')">
+                <span class="material-icons">info</span> Info
+            </button>
+        `;
+        actionsCell.appendChild(actionsDiv);
+
+        // Append cells to data row
+        dataRow.appendChild(detailsCell);
+        dataRow.appendChild(statusCell);
+        dataRow.appendChild(actionsCell);
+
+        // Append data row to tbody
+        tbody.appendChild(dataRow);
+
+        // Assemble the table
+        table.appendChild(thead);
+        table.appendChild(tbody);
+
+        // Append table to the container
+        medTablesContainer.appendChild(table);
+    });
+}
+
+        // Function to get doses taken in the defined period
+        function getDosesInPeriod(med) {
+            const now = Date.now();
+            const periodMs = convertToMilliseconds(med.periodAmount, med.periodUnit);
+            const periodStart = now - periodMs;
+            const dosesInPeriod = med.dosesTaken.filter(doseTime => doseTime >= periodStart);
+            return dosesInPeriod.length * med.dosageAmount;
+        }
+
+        // Function to check dosage limit
+        function checkDosageLimit(med) {
+            // Calculate total dosage taken in the period
+            const totalDosage = getDosesInPeriod(med);
+            return totalDosage >= med.maxDosage;
+        }
+
+        // Function to convert time to milliseconds
+        function convertToMilliseconds(amount, unit) {
+            switch (unit) {
+                case 'minutes':
+                    return amount * 60 * 1000;
+                case 'hours':
+                    return amount * 60 * 60 * 1000;
+                case 'days':
+                    return amount * 24 * 60 * 60 * 1000;
+                default:
+                    return 0;
+            }
+        }
+
+        // Function to calculate next dose time
+        function getNextDoseTime(med) {
+            if (med.dosesTaken.length === 0) {
+                return 'Now';
+            }
+            const lastDoseTime = med.dosesTaken[med.dosesTaken.length - 1];
+            const minTimeMs = convertToMilliseconds(med.minTimeBetweenDoses, med.minTimeUnit);
+            const nextDoseTimestamp = lastDoseTime + minTimeMs;
+            const now = Date.now();
+            if (nextDoseTimestamp <= now) {
+                return 'Now';
+            } else {
+                const timeLeftMs = nextDoseTimestamp - now;
+                return formatTime(timeLeftMs);
+            }
+        }
+
+        // Function to format time left
+        function formatTime(milliseconds) {
+            const totalMinutes = Math.ceil(milliseconds / (60 * 1000));
+            if (totalMinutes < 60) {
+                return `${totalMinutes} minutes`;
+            } else if (totalMinutes < 1440) {
+                const hours = Math.ceil(totalMinutes / 60);
+                return `${hours} hour${hours > 1 ? 's' : ''}`;
+            } else {
+                const days = Math.ceil(totalMinutes / 1440);
+                return `${days} day${days > 1 ? 's' : ''}`;
+            }
+        }
+
+        // Function to check if a dose can be taken
+        function canTakeDose(med) {
+            if (med.dosesTaken.length === 0) {
+                return true;
+            }
+            const lastDoseTime = med.dosesTaken[med.dosesTaken.length - 1];
+            const now = Date.now();
+            const minTimeMs = convertToMilliseconds(med.minTimeBetweenDoses, med.minTimeUnit);
+            return (now - lastDoseTime) >= minTimeMs;
+        }
+
+        // Function to take a dose
+        function takeDose(id) {
+            const med = medications.find(m => m.id === id);
+            if (med) {
+                if (!canTakeDose(med)) {
+                    alert(`You must wait at least ${med.minTimeBetweenDoses} ${med.minTimeUnit} between doses.`);
+                    return;
+                }
+                if (checkDosageLimit(med)) {
+                    alert('Maximum dosage in defined period reached.');
+                    return;
+                }
+
+                // Prompt for number of doses taken
+                const maxDoses = med.maxDosagesPerAdmin;
+                const doseCount = parseInt(prompt(`Enter number of doses taken (Max ${maxDoses}):`, '1'));
+                if (isNaN(doseCount) || doseCount <= 0 || doseCount > maxDoses) {
+                    alert(`Please enter a valid number up to ${maxDoses}.`);
+                    return;
+                }
+
+                const now = Date.now();
+                for (let i = 0; i < doseCount; i++) {
+                    med.dosesTaken.push(now);
+                }
+
+                // Reduce quantity left
+                med.quantityLeft -= med.dosageAmount * doseCount;
+
+                // Update medications array
+                medications = medications.map(m => m.id === med.id ? med : m);
+
+                // Save to localStorage
+                localStorage.setItem('medications', JSON.stringify(medications));
+
+                // Update table
+                renderTable();
+            }
+        }
+
+        // Function to undo the last dose taken
+        function undoDose(id) {
+            const med = medications.find(m => m.id === id);
+            if (med && med.dosesTaken.length > 0) {
+                // Remove the last dose(s)
+                const doseCount = parseInt(prompt('Enter number of doses to undo:', '1'));
+                if (isNaN(doseCount) || doseCount <= 0 || doseCount > med.dosesTaken.length) {
+                    alert('Please enter a valid number.');
+                    return;
+                }
+
+                med.dosesTaken.splice(-doseCount, doseCount);
+
+                // Increase quantity left
+                med.quantityLeft += med.dosageAmount * doseCount;
+
+                // Update medications array
+                medications = medications.map(m => m.id === med.id ? med : m);
+
+                // Save to localStorage
+                localStorage.setItem('medications', JSON.stringify(medications));
+
+                // Update table
+                renderTable();
+            } else {
+                alert('No doses to undo.');
+            }
+        }
+
+        // Function to edit medication
+        function editMedication(id) {
+            const med = medications.find(m => m.id === id);
+            if (med) {
+                // Populate form with existing data
+                document.getElementById('med-name').value = med.name;
+                document.getElementById('med-type').value = med.type;
+                document.getElementById('dosage-amount').value = med.dosageAmount;
+                document.getElementById('dosage-unit').value = med.dosageUnit;
+                frequencyType.value = med.frequencyType;
+                if (med.frequencyType === 'interval') {
+                    frequencyInterval.style.display = 'block';
+                    frequencyAmount.value = med.frequencyAmount;
+                    frequencyUnit.value = med.frequencyUnit;
+                } else {
+                    frequencyInterval.style.display = 'none';
+                }
+                minTimeBetweenDoses.value = med.minTimeBetweenDoses;
+                minTimeUnit.value = med.minTimeUnit;
+                maxDosagesPerAdmin.value = med.maxDosagesPerAdmin;
+                maxDosage.value = med.maxDosage; // Updated to set value from select
+                periodAmount.value = med.periodAmount;
+                periodUnit.value = med.periodUnit;
+                document.getElementById('quantity-left').value = med.quantityLeft;
+                document.getElementById('low-threshold').value = med.lowThreshold;
+
+                // Remove the old medication entry
+                medications = medications.filter(m => m.id !== id);
+                localStorage.setItem('medications', JSON.stringify(medications));
+                renderTable();
+            }
+        }
+
+        // Function to delete medication
+        function deleteMedication(id) {
+            if (confirm('Are you sure you want to delete this medication?')) {
+                medications = medications.filter(m => m.id !== id);
+                localStorage.setItem('medications', JSON.stringify(medications));
+                renderTable();
+            }
+        }
+
+        // Function to open Google search for medication
+        function openGoogleSearch(medName) {
+            const query = `medication indications cautions interactions dosage limits ${medName}`;
+            window.open(`https://www.google.com/search?q=${query}`, '_blank');
+        }
+
+        // Function to schedule notifications
+        function scheduleNotifications(med) {
+            // Check for notification permission
+            if (Notification.permission === 'granted' && med.frequencyType === 'interval') {
+                // Calculate the interval in milliseconds
+                const interval = convertToMilliseconds(med.frequencyAmount, med.frequencyUnit);
+
+                // Function to set notification
+                function setMedNotification() {
+                    setTimeout(() => {
+                        showNotification(`Time to take your medication: ${med.name}`);
+                        setMedNotification(); // Reschedule the next notification
+                    }, interval);
+                }
+
+                setMedNotification();
+            }
+        }
+
+        // Function to show notifications
+        function showNotification(message) {
+            if (Notification.permission === 'granted') {
+                new Notification('Medication Reminder', {
+                    body: message,
+                    icon: '' // You can add an icon here
+                });
+            }
+        }
+
+        // Request notification permission on page load
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
+        }
+
+        // Function to backup data
+        function backupData() {
+            const dataStr = JSON.stringify(medications);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+            // Use Web Share API if supported
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Medication Backup',
+                    text: 'Here is my medication data backup.',
+                    url: dataUri
+                }).catch((err) => console.error('Share failed:', err));
+            } else {
+                // Fallback: Download the JSON file
+                const exportFileDefaultName = 'medication_backup.json';
+                let linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }
+        }
+
+        // Function to restore data
+        function restoreData() {
+            const inputElement = document.createElement('input');
+            inputElement.type = 'file';
+            inputElement.accept = 'application/json';
+            inputElement.onchange = event => {
+                const file = event.target.files[0];
+                if (!file) {
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        medications = data;
+                        localStorage.setItem('medications', JSON.stringify(medications));
+                        renderTable();
+                    } catch (err) {
+                        alert('Invalid file format.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            inputElement.click();
+        }
+
+        // Event listeners
+        medForm.addEventListener('submit', addMedication);
+        backupBtn.addEventListener('click', backupData);
+        restoreBtn.addEventListener('click', restoreData);
+        frequencyType.addEventListener('change', () => {
+            if (frequencyType.value === 'interval') {
+                frequencyInterval.style.display = 'block';
+            } else {
+                frequencyInterval.style.display = 'none';
+            }
+        });
+
+        // Hide frequency interval inputs by default
+        if (frequencyType.value === 'interval') {
+            frequencyInterval.style.display = 'block';
+        } else {
+            frequencyInterval.style.display = 'none';
+        }
+
+        // Render the table on page load
+        renderTable();
+
+    </script>
+</body>
+</html>
